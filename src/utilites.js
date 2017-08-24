@@ -71,7 +71,7 @@ export function addMultipleClasses (docArray, docArrayIndex, occurances, occuran
 export function addClasses(docArray, occurances){
   for (let i = 0; i < docArray.length; i++) {
     for (let j = 0; j < occurances.length; j++) {
-      if (docArray[i].formatPhrases === occurances[j].phrase.split(' ')[0]) {
+      if (docArray[i].formatPhrases === occurances[j].phrase.split(' ')[0] || docArray[i].phrase === occurances[j].phrase.split(' ')[0]) {
         if (occurances[j].phrase.split(' ').length > 1) {
           docArray[i].classes.push(addMultipleClasses(docArray, i, occurances, j));
         } else {
@@ -99,9 +99,14 @@ export function buildMultipleClasses(docArray, docArrayIndex, currentOccurance) 
       let classIndex = {};
       classIndex.index = docArrayIndex + i;
       classIndex.classes = [currentOccurance.color];
+      classIndex.trailingWords = [];
+      for (let j = 0; j < currentOccuranceLength; j++) {
+        classIndex.trailingWords.push(docArrayIndex + j)
+      }
       classIndexList.push(classIndex);
     }
   }
+  console.log(classIndexList)
   return classIndexList
 }
 
@@ -118,35 +123,51 @@ export function buildClassList(occurances, docArray){
             for (let x = 0; x < classIndexTempList.length; x++) {
               let currentClassIndex = classIndexTempList[x];
               if (classIndexList[currentClassIndex.index]) {
-                let temp = classIndexList[currentClassIndex.index].concat(currentClassIndex.classes);
-                classIndexList[currentClassIndex.index] = temp;
-              } else {
-                
-                classIndexList[currentClassIndex.index] = currentClassIndex.classes;
+                let temp = classIndexList[currentClassIndex.index]['classes'].concat(currentClassIndex.classes);
+                classIndexList[currentClassIndex.index]['classes'] = temp;
+                classIndexList[currentClassIndex.index]['trailingWords'] = currentClassIndex.trailingWords
+              } else {     
+                classIndexList[currentClassIndex.index] = {};
+                classIndexList[currentClassIndex.index]['classes'] = currentClassIndex.classes;
+                classIndexList[currentClassIndex.index]['trailingWords'] = currentClassIndex.trailingWords || [];
               } 
             }
           }  
         } else {
           if (classIndexList[j]) {
-            classIndexList[j].concat(currentOccurance.color);
+            classIndexList[j]['classes'].concat(currentOccurance.color);
           } else {
-            classIndexList[j] = [currentOccurance.color]
+            classIndexList[j] = {};
+            classIndexList[j]['classes'] = [currentOccurance.color]
+            classIndexList[j]['trailingWords'] = [];
           }
-          
         }
       }
     }
   }
+  console.log(classIndexList)
   return classIndexList
 }
 
 export function addClassesToWords(docArray, classes){
+  console.log(classes)
   for (let i = 0; i < docArray.length; i++) {
     if (classes[i]) {
       docArray[i].classes = classes[i]
+    } else {
+      docArray[i].classes = {};
+      docArray[i].classes['classes'] = [];
+      docArray[i].classes['trailingWords'] = [];
     }
   }
   return docArray
+}
+
+export function buildPhraseDataList(docArray, occurances) {
+  let phraseData = [];
+  for (let i = 0; i < occurances.length; i++) {
+    phraseData.push()
+  }
 }
 
 
@@ -154,6 +175,8 @@ export function highlightText(doc){
   let docArray = formatDoc(doc);
   const occurances = findPhraseOccurances(doc, docArray);
   const classes = buildClassList(occurances, docArray);
+  //const phraseData = buildPhraseDataList(docArray, occurances)
+  console.log(classes);
   docArray = addClassesToWords(docArray, classes);
   return docArray;
 }
