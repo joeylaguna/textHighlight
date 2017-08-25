@@ -24,19 +24,8 @@ export function formatDoc(doc){
   return docArray;
 }
 
-export function getPhraseOccurances(phrases, docArray){
-  let phraseOccurances = [];
-  for (let key in phrases) {
-    let color = key;
-    for (let i = 0; i < phrases[color].length; i++) {
-      let currentPhrase = phrases[color][i];
-      findPhraseOccurances(currentPhrase, docArray);
-    }
-  }
-}
-
 export function findPhraseMatches(phrase, doc, docArray){
-  return doc.indexOf(phrase);
+  return doc.toLowerCase().indexOf(phrase);
 }
 
 export function findPhraseOccurances(doc, docArray){
@@ -71,10 +60,13 @@ export function addMultipleClasses (docArray, docArrayIndex, occurances, occuran
 export function addClasses(docArray, occurances){
   for (let i = 0; i < docArray.length; i++) {
     for (let j = 0; j < occurances.length; j++) {
+      console.log(docArray[i].formatPhrases)
       if (docArray[i].formatPhrases === occurances[j].phrase.split(' ')[0] || docArray[i].phrase === occurances[j].phrase.split(' ')[0]) {
+        console.log('here with word ' + docArray[i].formatPhrases);
         if (occurances[j].phrase.split(' ').length > 1) {
           docArray[i].classes.push(addMultipleClasses(docArray, i, occurances, j));
         } else {
+          console.log('here with word ' + docArray[i].formatPhrases);
           docArray[i].classes.push(occurances[j].color);
         }
       }
@@ -99,6 +91,14 @@ export function buildMultipleClasses(docArray, docArrayIndex, currentOccurance) 
       let classIndex = {};
       classIndex.index = docArrayIndex + i;
       classIndex.classes = [currentOccurance.color];
+      //add edges
+      // if (i === 0 && slicedArrayLength === 1) {
+      //   classIndex.classes.push('leftEdge rightEdge')
+      // } else if (i === 0 && slicedArrayLength > 1) {
+      //   classIndex.classes.push('leftEdge')
+      // } else if (i === slicedArrayLength - 1) {
+      //   classIndex.classes.push('rightEdge')
+      // }
       classIndex.trailingWords = [];
       for (let j = 0; j < currentOccuranceLength; j++) {
         classIndex.trailingWords.push(docArrayIndex + j)
@@ -106,17 +106,18 @@ export function buildMultipleClasses(docArray, docArrayIndex, currentOccurance) 
       classIndexList.push(classIndex);
     }
   }
-  console.log(classIndexList)
   return classIndexList
 }
 
 export function buildClassList(occurances, docArray){
   let classIndexList = {};
+  console.log(occurances)
   for (let i = 0; i < occurances.length; i++) {
     let currentOccurance = occurances[i];
     for (let j = 0; j < docArray.length; j++) {
       let currentWord = docArray[j];
-      if (currentWord.formatPhrases === currentOccurance.phrase.split(' ')[0]) {
+      console.log(currentWord)
+      if (currentWord.formatPhrases === currentOccurance.phrase.split(' ')[0] || currentWord.phrase === currentOccurance.phrase.split(' '[0])) {
         if (currentOccurance.phrase.split(' ').length > 1) {
           let classIndexTempList = buildMultipleClasses(docArray, j, currentOccurance);
           if (classIndexTempList) {
@@ -145,12 +146,10 @@ export function buildClassList(occurances, docArray){
       }
     }
   }
-  console.log(classIndexList)
   return classIndexList
 }
 
 export function addClassesToWords(docArray, classes){
-  console.log(classes)
   for (let i = 0; i < docArray.length; i++) {
     if (classes[i]) {
       docArray[i].classes = classes[i]
@@ -170,13 +169,54 @@ export function buildPhraseDataList(docArray, occurances) {
   }
 }
 
+export function addHoverClasses(docArray, hoverItems, key) {
+  if (hoverItems.length === 0) {
+    if (docArray[key].classes.classes[0] !== 'active-' + + docArray[key].classes.classes[docArray[key].classes.classes.length-1]) {
+      docArray[key].classes.classes.unshift('active-' + docArray[key].classes.classes[docArray[key].classes.classes.length-1]);
+      return docArray
+    }
+  }
+  for (let i = 0; i < hoverItems.length; i++) {
+    let currentWord = docArray[hoverItems[i]];
+    let prevWord = docArray[hoverItems[i-1]];
+    if (prevWord) {
+      if (currentWord.classes.classes[0] !== 'active-' + (prevWord.classes.classes[prevWord.classes.classes.length-1] || currentWord.classes.classes[currentWord.classes.classes.length-1])) {
+            currentWord.classes.classes.unshift('active-' + (prevWord.classes.classes[prevWord.classes.classes.length-1] ||currentWord.classes.classes[currentWord.classes.classes.length-1]));
+      }
+    } else {
+      if (currentWord.classes.classes[0] !== 'active-' + (currentWord.classes.classes[currentWord.classes.classes.length-1])) {
+      currentWord.classes.classes.unshift('active-' + (currentWord.classes.classes[currentWord.classes.classes.length-1]));
+      }
+    }
+  }
+  return docArray;
+}
+
+export function removeHoverClasses(docArray, hoverItems, key) {
+  if (hoverItems.length === 0) {
+    docArray[key].classes.classes.shift();
+    return docArray;
+  }
+  for (let i = 0; i < hoverItems.length; i++) {
+    let currentWord = docArray[hoverItems[i]];
+    currentWord.classes.classes.shift();
+  }
+  return docArray
+}
+
 
 export function highlightText(doc){
   let docArray = formatDoc(doc);
   const occurances = findPhraseOccurances(doc, docArray);
   const classes = buildClassList(occurances, docArray);
-  //const phraseData = buildPhraseDataList(docArray, occurances)
-  console.log(classes);
   docArray = addClassesToWords(docArray, classes);
   return docArray;
+}
+
+export function hoverActive(docArray, hoverItems, key) {
+  return addHoverClasses(docArray, hoverItems, key);
+}
+
+export function hoverInactive(docArray, hoverItems, key) {
+  return removeHoverClasses(docArray, hoverItems, key);
 }
