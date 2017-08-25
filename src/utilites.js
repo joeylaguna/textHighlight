@@ -20,6 +20,7 @@ export function formatDoc(doc){
     docArray[i].formatPhrases = phrase;
     docArray[i].endOfSentence = endOfSentence;
     docArray[i].classes = [];
+    docArray[i].index = doc.indexOf(currentWord);
   }
   return docArray;
 }
@@ -60,13 +61,10 @@ export function addMultipleClasses (docArray, docArrayIndex, occurances, occuran
 export function addClasses(docArray, occurances){
   for (let i = 0; i < docArray.length; i++) {
     for (let j = 0; j < occurances.length; j++) {
-      console.log(docArray[i].formatPhrases)
       if (docArray[i].formatPhrases === occurances[j].phrase.split(' ')[0] || docArray[i].phrase === occurances[j].phrase.split(' ')[0]) {
-        console.log('here with word ' + docArray[i].formatPhrases);
         if (occurances[j].phrase.split(' ').length > 1) {
           docArray[i].classes.push(addMultipleClasses(docArray, i, occurances, j));
         } else {
-          console.log('here with word ' + docArray[i].formatPhrases);
           docArray[i].classes.push(occurances[j].color);
         }
       }
@@ -111,12 +109,11 @@ export function buildMultipleClasses(docArray, docArrayIndex, currentOccurance) 
 
 export function buildClassList(occurances, docArray){
   let classIndexList = {};
-  console.log(occurances)
+
   for (let i = 0; i < occurances.length; i++) {
     let currentOccurance = occurances[i];
     for (let j = 0; j < docArray.length; j++) {
       let currentWord = docArray[j];
-      console.log(currentWord)
       if (currentWord.formatPhrases === currentOccurance.phrase.split(' ')[0] || currentWord.phrase === currentOccurance.phrase.split(' '[0])) {
         if (currentOccurance.phrase.split(' ').length > 1) {
           let classIndexTempList = buildMultipleClasses(docArray, j, currentOccurance);
@@ -204,9 +201,51 @@ export function removeHoverClasses(docArray, hoverItems, key) {
   return docArray
 }
 
+export function testFun(indexMap, docArray, doc) {
+  for (let color in phrases) {
+    for (let i = 0; i < phrases[color].length; i++) {
+      let phrase = phrases[color][i];
+      let phraseArray = phrase.split(' ');
+      let prevFound = false;
+      for (let j = 0; j <phraseArray.length; j++) {
+        if (j !== 0) {
+          if (prevFound) {
+            if (doc.indexOf(phraseArray[j]) !== -1) {
+              let temp = doc.indexOf(phraseArray[j]);
+              let word = docArray[indexMap[temp]];
+              word.classes.push(color);
+              prevFound = true;
+            }
+          }
+        } else {
+          let re = new RegExp('\\b' + phraseArray[j] + '\\b');
+          let test = doc.search(re);
+          if (doc.search(re) !== -1) {
+            let temp = doc.search(phraseArray[j]);
+            let word = docArray[indexMap[temp]];
+            word.classes.push(color);
+            prevFound = true;
+          }
+        }
+      }
+    }
+  }
+  return (docArray);
+}
+
+export function buildIndexMap(docArray) {
+  let indexMap = {};
+  for (let i = 0; i < docArray.length; i++) {
+    indexMap[docArray[i].index] = i;
+  }
+  return indexMap
+}
+
 
 export function highlightText(doc){
   let docArray = formatDoc(doc);
+  const indexMap = buildIndexMap(docArray);
+  //return testFun(indexMap, docArray, doc);
   const occurances = findPhraseOccurances(doc, docArray);
   const classes = buildClassList(occurances, docArray);
   docArray = addClassesToWords(docArray, classes);
@@ -220,3 +259,5 @@ export function hoverActive(docArray, hoverItems, key) {
 export function hoverInactive(docArray, hoverItems, key) {
   return removeHoverClasses(docArray, hoverItems, key);
 }
+
+highlightText('you will deliver new technology')
