@@ -3,6 +3,9 @@ span {
   padding-top: 3px;
   padding-bottom: 3px;
 }
+.grey {
+  background-color: #efefef;
+}
 .red {
   background-color: #ffadac;
 }
@@ -13,10 +16,6 @@ span {
 
 .purple {
   background-color: purple;
-}
-
-.grey {
-  background-color: #efefef;
 }
 
 .green {
@@ -35,6 +34,11 @@ span {
 
 .active-red {
   background-color: #d02a28;
+  color: #f4f4f4;
+}
+
+.active-blue {
+  background-color: #35c7fb;
   color: #f4f4f4;
 }
 
