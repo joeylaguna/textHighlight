@@ -1,0 +1,49 @@
+span {
+  font-family: 'Lato', sans-serif;
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+.red {
+  background-color: #ffadac;
+}
+
+.blue {
+  background-color: #94ddf7;
+}
+
+.purple {
+  background-color: purple;
+}
+
+.grey {
+  background-color: #efefef;
+}
+
+.green {
+  background-color: #b3f573;
+}
+
+.active-grey {
+  background-color: #adadad;
+  color: #f4f4f4;
+}
+
+.active-green {
+  background-color: #71c71c;
+  color: #f4f4f4;
+}
+
+.active-red {
+  background-color: #d02a28;
+  color: #f4f4f4;
+}
+
+.leftEdge {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.rightEdge {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
