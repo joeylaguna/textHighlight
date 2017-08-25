@@ -167,23 +167,15 @@ export function buildPhraseDataList(docArray, occurances) {
 }
 
 export function addHoverClasses(docArray, hoverItems, key) {
+  let classToAdd = docArray[key].classes.classes[docArray[key].classes.classes.length-1];
   if (hoverItems.length === 0) {
-    if (docArray[key].classes.classes[0] !== 'active-' + + docArray[key].classes.classes[docArray[key].classes.classes.length-1]) {
-      docArray[key].classes.classes.unshift('active-' + docArray[key].classes.classes[docArray[key].classes.classes.length-1]);
-      return docArray
-    }
+    docArray[key].classes.classes.unshift('active-'+classToAdd);
+    return docArray
   }
   for (let i = 0; i < hoverItems.length; i++) {
-    let currentWord = docArray[hoverItems[i]];
-    let prevWord = docArray[hoverItems[i-1]];
-    if (prevWord) {
-      if (currentWord.classes.classes[0] !== 'active-' + (prevWord.classes.classes[prevWord.classes.classes.length-1] || currentWord.classes.classes[currentWord.classes.classes.length-1])) {
-            currentWord.classes.classes.unshift('active-' + (prevWord.classes.classes[prevWord.classes.classes.length-1] ||currentWord.classes.classes[currentWord.classes.classes.length-1]));
-      }
-    } else {
-      if (currentWord.classes.classes[0] !== 'active-' + (currentWord.classes.classes[currentWord.classes.classes.length-1])) {
-      currentWord.classes.classes.unshift('active-' + (currentWord.classes.classes[currentWord.classes.classes.length-1]));
-      }
+    let index = hoverItems[i];
+    if (docArray[index].classes.classes.indexOf('active-'+classToAdd) === -1) {
+      docArray[index].classes.classes.unshift('active-'+classToAdd);
     }
   }
   return docArray;
