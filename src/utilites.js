@@ -90,13 +90,13 @@ export function buildMultipleClasses(docArray, docArrayIndex, currentOccurance) 
       classIndex.index = docArrayIndex + i;
       classIndex.classes = [currentOccurance.color];
       //add edges
-      // if (i === 0 && slicedArrayLength === 1) {
-      //   classIndex.classes.push('leftEdge rightEdge')
-      // } else if (i === 0 && slicedArrayLength > 1) {
-      //   classIndex.classes.push('leftEdge')
-      // } else if (i === slicedArrayLength - 1) {
-      //   classIndex.classes.push('rightEdge')
-      // }
+      if (i === 0 && slicedArrayLength === 1) {
+        classIndex.classes.push('leftEdge rightEdge')
+      } else if (i === 0 && slicedArrayLength > 1) {
+        classIndex.classes.push('leftEdge')
+      } else if (i === slicedArrayLength - 1) {
+        classIndex.classes.push('rightEdge')
+      }
       classIndex.trailingWords = [];
       for (let j = 0; j < currentOccuranceLength; j++) {
         classIndex.trailingWords.push(docArrayIndex + j)
@@ -168,6 +168,9 @@ export function buildPhraseDataList(docArray, occurances) {
 
 export function addHoverClasses(docArray, hoverItems, key) {
   let classToAdd = docArray[key].classes.classes[docArray[key].classes.classes.length-1];
+  if (classToAdd === 'leftEdge' || classToAdd === 'rightEdge') {
+    classToAdd = docArray[key].classes.classes[docArray[key].classes.classes.length-2];
+  }
   if (hoverItems.length === 0) {
     docArray[key].classes.classes.unshift('active-'+classToAdd);
     return docArray
