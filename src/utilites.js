@@ -5,7 +5,10 @@ export const phrases = {
   'green': ['adorable', 'creative', 'love', 'new technology', 'groundbreaking'],
   'red': ['action-oriented', 'alarming', 'candidates', 'leave', 'do not want']  
 }
-
+/**
+ * Input:  @param {string} doc A string of the text the user has input
+ * Output: @param {array} docArray An array of objects where each object is a word
+ */
 export function formatDoc(doc){
   let docArray = doc.trim().split(' ');
   for (let i = 0; i < docArray.length; i++) {
@@ -29,6 +32,11 @@ export function findPhraseMatches(phrase, doc, docArray){
   return doc.toLowerCase().indexOf(phrase);
 }
 
+/**
+ * Input:  @param {string} doc A string of the text the user has input 
+ *         @param {array}  docArray An array of objects where each object is a word
+ * Output: @param {array}  occurance An array of objects where each object is a phrase that occurs in the text
+ */
 export function findPhraseOccurances(doc, docArray){
   let occurances = [];
   for (let key in phrases) {
@@ -71,14 +79,17 @@ export function addClasses(docArray, occurances){
     }
   }
 }
-
+/**
+ * Input:  @param {array}   docArray An array of objects where each object is a word 
+ *         @param {integer} docArrayIndex Current index of docArray
+ * Output: @param {array}   classIndexList An array of classes for the current word in docArray
+ */
 export function buildMultipleClasses(docArray, docArrayIndex, currentOccurance) {
   let classIndexList = [];
   const currentOccuranceLength = currentOccurance.phrase.split(' ').length;
   const slicedArray = docArray.slice(docArrayIndex, docArrayIndex + currentOccuranceLength);
   const slicedArrayLength = slicedArray.length;
   let docArrayString = [];
-
   for (let i = 0; i < slicedArray.length; i++) {
     docArrayString.push(slicedArray[i].formatPhrases);
   }
@@ -106,7 +117,11 @@ export function buildMultipleClasses(docArray, docArrayIndex, currentOccurance) 
   }
   return classIndexList
 }
-
+/**
+ * Input:  @param {array}  occurance An array of objects where each object is a phrase that occurs in the text
+ *         @param {array}  docArray An array of objects where each object is a word 
+ * Output: @param {object} classIndexList An object where each key is the index of the word in docArray and the classes key contains color classes and trailingWords key contains indexs of words that belong to the same phrase
+ */
 export function buildClassList(occurances, docArray){
   let classIndexList = {};
 
@@ -134,6 +149,7 @@ export function buildClassList(occurances, docArray){
         } else {
           if (classIndexList[j]) {
             classIndexList[j]['classes'].concat(currentOccurance.color);
+
           } else {
             classIndexList[j] = {};
             classIndexList[j]['classes'] = [currentOccurance.color]
@@ -179,6 +195,20 @@ export function addHoverClasses(docArray, hoverItems, key) {
     let index = hoverItems[i];
     if (docArray[index].classes.classes.indexOf('active-'+classToAdd) === -1) {
       docArray[index].classes.classes.unshift('active-'+classToAdd);
+      //Check first word and make sure it has no rightEdge class- add hideRight if true
+      if (i === 0) {
+        if (docArray[index].classes.classes.indexOf('rightEdge')) {
+          docArray[index].classes.classes.push('hideRight');
+        }
+      }
+
+
+      //Check last word and make sure it has no leftEdge class - add hideLeft if true
+      if (i === hoverItems.length-1) {
+        if (docArray[index].classes.classes.indexOf('leftEdge')) {
+          docArray[index].classes.classes.push('hideLeft')
+        }
+      }
     }
   }
   return docArray;
@@ -190,8 +220,22 @@ export function removeHoverClasses(docArray, hoverItems, key) {
     return docArray;
   }
   for (let i = 0; i < hoverItems.length; i++) {
+    let index = hoverItems[i];
     let currentWord = docArray[hoverItems[i]];
     currentWord.classes.classes.shift();
+    //Check first word and make sure it has no hideRight class - remove if true
+    if (i === 0) {
+      if (docArray[index].classes.classes.indexOf('hideRight')) {
+        docArray[index].classes.classes.splice(docArray[index].classes.classes.indexOf('hideRight'), 1);
+      }
+    }
+
+    //Check last word and make sure it has no hideLeft class - remove if true
+    if (i === hoverItems.length-1) {
+      if (docArray[index].classes.classes.indexOf('hideLeft')) {
+        docArray[index].classes.classes.splice(docArray[index].classes.classes.indexOf('hideLeft'), 1);
+      }
+    }
   }
   return docArray
 }
@@ -239,7 +283,7 @@ export function buildIndexMap(docArray) {
 
 export function highlightText(doc){
   let docArray = formatDoc(doc);
-  const indexMap = buildIndexMap(docArray);
+  //const indexMap = buildIndexMap(docArray);
   //return testFun(indexMap, docArray, doc);
   const occurances = findPhraseOccurances(doc, docArray);
   const classes = buildClassList(occurances, docArray);
@@ -254,5 +298,3 @@ export function hoverActive(docArray, hoverItems, key) {
 export function hoverInactive(docArray, hoverItems, key) {
   return removeHoverClasses(docArray, hoverItems, key);
 }
-
-highlightText('you will deliver new technology')
